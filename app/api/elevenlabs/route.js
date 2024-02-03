@@ -28,15 +28,17 @@ export async function POST(request) {
       throw new Error("Something went wrong");
     }
 
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const file = Math.random().toString(36).substring(7);
+    // Option 1: Return a Blob
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    return new Response(JSON.stringify({ file: blobUrl }));
 
-    fs.writeFile(path.join("public", "audio", `${file}.mp3`), buffer, () => {
-      console.log("File written successfully");
-    });
+    // Option 2: Return a Data URL
+    // const arrayBuffer = await response.arrayBuffer();
+    // const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    // const dataUrl = `data:audio/mpeg;base64,${base64String}`;
+    // return new Response(JSON.stringify({ file: dataUrl }));
 
-    return new Response(JSON.stringify({ file: `${file}.mp3` }));
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }));
   }
